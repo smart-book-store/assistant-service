@@ -1,0 +1,51 @@
+server:
+  port: 9001
+
+spring:
+  application.name: assistant-service
+  # OpenAI API compatible configuration
+  ai:
+    openai:
+      api-key: ${GEMINI_API_KEY:_YOUR_API_KEY_}
+      base-url: ${OPENAI_BASE_URL:http://localhost:11434}
+      chat:
+        completions-path: /v1/chat/completions
+        options:
+          model: ${LLM_MODEL:llama3.2:3b}
+  threads:
+    virtual:
+      enabled: true
+
+management:
+  # Actuator configuration
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info
+  # Metrics configuration
+  metrics:
+    distribution:
+      percentiles-histogram:
+        all: true
+    enable:
+      all: true
+    tags:
+      application: ${spring.application.name}
+  # Prometheus configuration
+  prometheus:
+    metrics:
+      export:
+        step: 5s
+  # Tracing configuration
+  tracing:
+    sampling:
+      probability: 1
+
+
+# Logging configuration
+logging:
+  level:
+    org.springframework.ai: info
+    org.springframework.web: info
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}"
